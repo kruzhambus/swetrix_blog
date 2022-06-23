@@ -4,6 +4,14 @@
 {% block content %}
 
     <html lang="en-US">
+    <style>
+        .round {
+            border-radius: 1000px; /* Радиус скругления */
+            border: 3px solid green; /* Параметры рамки */
+            box-shadow: 0 0 7px #666; /* Параметры тени */
+            width: 102px;
+        }
+    </style>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         {% load static %}
@@ -83,7 +91,8 @@
                 <h2 class="mt-0 mb-4">Swetrix Blog</h2>
                 <p class="mt-0 mb-4">Hello, we are building the future of analytics</p>
                 <p class="mt-0 mb-4">Simple. Private. Strong</p>
-                <a href="#" class="btn btn-light mt-2">Read more</a>
+                <a href="/" class="btn btn-light mt-2">Read more</a>
+                {#                Обработать кнопк чтобы она выкидывала на ссылку главную или скролл вниз#}
             </div>
         </div>
         <!-- animated mouse wheel -->
@@ -105,13 +114,13 @@
                 <div class="col-lg-8">
 
                     <div class="row gy-4">
-                        {% for post in posts %}
+                        {% for post in page_obj %}
                             <div class="col-sm-6">
                                 <!-- post -->
                                 <div class="post post-grid rounded bordered">
                                     <div class="thumb top-rounded">
                                         <a href="category.html"
-                                           class="category-badge position-absolute">{{ post.title }}</a>
+                                           class="category-badge position-absolute">{{ post.category }}</a>
                                         {#TODO добавить категорию в моделях#}
                                         <span class="post-format">
                                         <i class="icon-picture"></i>
@@ -126,10 +135,9 @@
                                     <div class="details">
                                         <ul class="meta list-inline mb-0">
                                             <li class="list-inline-item"><a href="#"><img
-                                                                                                        src="{% static "images/91_main.jpg" %}"
-                                                    class="author" alt="author">{{ post.id }}</a></li>
-                                            <img>
-                                            <li class="list-inline-item"> {{ post.created_at }}</li>
+                                                    src="{{ post.preview_photo }}"
+                                                    class="author" alt="author">{{ user.username }} --- {{ post.id }}
+                                            </a></li>
                                         </ul>
                                         <h5 class="post-title mb-3 mt-3"><a href="blog-single.html">{{ post.title }}</a>
                                         </h5>
@@ -163,19 +171,34 @@
 
 
                         {% endfor %}
-
-
                     </div>
+                    <div class="pagination">
+                        <span class="step-links">
+                            {% if page_obj.has_previous %}
+                                <a href="?page=1">&laquo; first</a>
+                                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                            {% endif %}
+                            <span class="current">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                            </span>
+                            {% if page_obj.has_next %}
+                                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                                <a href="/">Home</a>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {#TODO          Cделать красивые кнопошки! #}
 
-                    <nav>
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item active" aria-current="page">
-                                <span class="page-link">1</span>
-                            </li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        </ul>
-                    </nav>
+                    {#                    <nav>#}
+                    {#                        <ul class="pagination justify-content-center">#}
+                    {#                            <li class="page-item active" aria-current="page">#}
+                    {#                                <span class="page-link">1</span>#}
+                    {#                            </li>#}
+                    {#                            <li class="page-item"><a class="page-link" href="#">2</a></li>#}
+                    {#                            <li class="page-item"><a class="page-link" href="#">3</a></li>#}
+                    {#                        </ul>#}
+                    {#                    </nav>#}
 
                 </div>
                 {#TODO                ВОТ ТУТ УЖЖЕ пойдёт правая часть у нас : Категории, Популярные посты, Рассылочка#}
@@ -212,63 +235,28 @@
                             <div class="widget rounded">
                                 <div class="widget-header text-center">
                                     <h3 class="widget-title">Popular Posts</h3>
-                                    <img src="images/wave.svg" class="wave" alt="wave">
                                 </div>
                                 <div class="widget-content">
                                     <!-- post -->
-                                    <div class="post post-list-sm circle">
-                                        <div class="thumb circle">
-                                            <span class="number">1</span>
-                                            <a href="blog-single.html">
-                                                <div class="inner">
-                                                    <img src="images/posts/tabs-1.jpg" alt="post-title">
-                                                </div>
-                                            </a>
+                                    {% for post in random_posts %}
+                                        <div class="post post-list-sm circle">
+                                            <div class="thumb circle">
+                                                <span class="number">{{ post.id }}</span>
+                                                <a href="blog-single.html">
+                                                    <div class="inner">
+                                                        <img src="{{ post.preview_photo }}" alt="post-title">
+                                                    </div>
+                                                </a>
+                                            </div>
+                                            <div class="details clearfix">
+                                                <h6 class="post-title my-0"><a
+                                                        href="blog-single.html">{{ post.title }}</a></h6>
+                                                <ul class="meta list-inline mt-1 mb-0">
+                                                    <li class="list-inline-item">{{ post.created_at }}</li>
+                                                </ul>
+                                            </div>
                                         </div>
-                                        <div class="details clearfix">
-                                            <h6 class="post-title my-0"><a href="blog-single.html">3 Easy Ways To Make
-                                                Your iPhone Faster</a></h6>
-                                            <ul class="meta list-inline mt-1 mb-0">
-                                                <li class="list-inline-item">29 March 2021</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <!-- post -->
-                                    <div class="post post-list-sm circle">
-                                        <div class="thumb circle">
-                                            <span class="number">2</span>
-                                            <a href="blog-single.html">
-                                                <div class="inner">
-                                                    <img src="images/posts/tabs-2.jpg" alt="post-title">
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div class="details clearfix">
-                                            <h6 class="post-title my-0"><a href="blog-single.html">An Incredibly Easy
-                                                Method That Works For All</a></h6>
-                                            <ul class="meta list-inline mt-1 mb-0">
-                                                <li class="list-inline-item">29 March 2021</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <!-- post -->
-                                    <div class="post post-list-sm circle">
-                                        <div class="thumb circle">
-                                            <span class="number">3</span>
-                                            <a href="blog-single.html">
-                                                <div class="inner">
-                                                    <img src="images/posts/tabs-3.jpg" alt="post-title">
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div class="details clearfix">
-                                            <h6 class="post-title my-0"><a href="blog-single.html">10 Ways To
-                                                Immediately Start Selling Furniture</a></h6>
-                                            <ul class="meta list-inline mt-1 mb-0">
-                                                <li class="list-inline-item">29 March 2021</li>
-                                            </ul>
-                                        </div>
-                                    </div>
+                                    {% endfor %}
                                 </div>
                             </div>
 
@@ -280,15 +268,13 @@
                                 </div>
                                 <div class="widget-content">
                                     <ul class="list">
-                                        <li><a href="#">Lifestyle</a><span>(5)</span></li>
-                                        <li><a href="#">Inspiration</a><span>(2)</span></li>
-                                        <li><a href="#">Fashion</a><span>(4)</span></li>
-                                        <li><a href="#">Politic</a><span>(1)</span></li>
-                                        <li><a href="#">Trending</a><span>(7)</span></li>
-                                        <li><a href="#">Culture</a><span>(3)</span></li>
+                                        {% for category in categories %}
+                                            <li>
+                                                <a href="http://127.0.0.1:8000/{{ category.name }}">{{ category.name }}</a><span>({{ category.posts_count }})</span>
+                                            </li>
+                                        {% endfor %}
                                     </ul>
                                 </div>
-
                             </div>
 
                             <!-- widget newsletter -->
@@ -301,7 +287,8 @@
                                     <span class="newsletter-headline text-center mb-3">Join 70,000 subscribers!</span>
                                     <form>
                                         <div class="mb-2">
-                                            <input class="form-control w-100 text-center" placeholder="Email address…"
+                                            <input class="form-control w-100 text-center"
+                                                   placeholder="Email address…"
                                                    type="email">
                                         </div>
                                         <button class="btn btn-default btn-full" type="submit">Sign Up</button>
@@ -314,8 +301,8 @@
                         </div>
                     </div>
                 </div>
-
             </div>
+        </div>
     </section>
 
     <!-- instagram feed -->

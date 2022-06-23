@@ -8,7 +8,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('<int:pk>/', views.detail, name='detail'),
     path('profile/', views.profile, name='users-profile'),
-
+    path('<str:name>/', views.category, name='category'),
 ]
 
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
