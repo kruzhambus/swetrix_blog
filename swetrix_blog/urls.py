@@ -9,8 +9,8 @@ urlpatterns = [
     # path('<int:pk>/', views.detail, name='detail'),
     path('profile/', views.profile, name='users-profile'),
     path('<str:name>/', views.category, name='category'),
-    path('post/<int:pk>/', views.get_post, name='specific_post'),
-    path('add_post/', views.add_post, name='add_post'),
+    path('post/<str:url_path>/', views.get_post, name='specific_post'),
+    path('<str:name>/post/<str:url_path>/', views.get_post, name='possst'),
 ]
 
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns

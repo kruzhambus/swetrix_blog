@@ -16,16 +16,16 @@
 
 {% load blog_extras %}
 
-{% if request.user.is_authenticated %}
-    <a href="{% url 'add_post' %}">Create Post</a>
-{% endif %}
+{#{% if request.user.is_authenticated %}#}
+{#    <a href="{% url 'add_post' %}">Create Post</a>#}
+{#{% endif %}#}
 
 <div class="container-xl">
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#">Home</a></li>
-            <li class="breadcrumb-item"><a href="#">Inspiration</a></li>
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="https://swetrix.com/">Swetrix</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ post.title }}</li>
         </ol>
     </nav>
@@ -38,11 +38,9 @@
                 <div class="post-header">
                     <h1 class="title mt-0 mb-3">{{ post.title }}</h1>
                     <ul class="meta list-inline mb-0">
-                        {#TODO figure out how to get the image for the author of the post #}
-                        <li class="list-inline-item"><a href="#"><img src="{% static post.author.avatar.close %}"
-                                                                      class="author"
-                                                                      alt="author">{{ post.author }}</a></li>
-                        <li class="list-inline-item"><a href="#">{{ post.category }}</a></li>
+                        <img style="width:50px" ; src="{{ author_photo.avatar.url }}">
+                        <li class="list-inline-item"><a href="https://swetrix.com/about">{{ post.author }}</a></li>
+                        <li class="list-inline-item"><a href="/{{ post.category }}">{{ post.category }}</a></li>
                         <li class="list-inline-item">{{ post.created_at }}</li>
                     </ul>
                 </div>
@@ -73,7 +71,7 @@
 
             <div class="about-author padding-30 rounded">
                 <div class="thumb">
-                    <img src="images/other/avatar-about.png" alt="Katen Doe">
+                    <img style="width:90px" ; src="{{ author_photo.avatar.url }}">
                 </div>
                 <div class="details">
                     <h4 class="name"><a href="#">{{ post.author }}</a></h4>
@@ -94,129 +92,109 @@
 
             <!-- section header -->
             <div class="section-header">
-                <h3 class="section-title">Comments (3)</h3>
-                <img src="images/wave.svg" class="wave" alt="wave">
+                <h3 class="section-title">Comments ({{ comments.count }})</h3>
             </div>
             <!-- post comments -->
-            <div class="comments bordered padding-30 rounded">
+            {% for comment in comments %}
+                <div class="comments bordered padding-30 rounded">
 
-                <ul class="comments">
-                    <!-- comment item -->
-                    <li class="comment rounded">
-                        <div class="thumb">
-                            <img src="images/other/comment-1.png" alt="John Doe">
-                        </div>
-                        <div class="details">
-                            <h4 class="name"><a href="#">John Doe</a></h4>
-                            <span class="date">Jan 08, 2021 14:41 pm</span>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vitae odio ut tortor
-                                fringilla cursus sed quis odio.</p>
-                            <a href="#" class="btn btn-default btn-sm">Reply</a>
-                        </div>
-                    </li>
-                    <!-- comment item -->
-                    <li class="comment child rounded">
-                        <div class="thumb">
-                            <img src="images/other/comment-2.png" alt="John Doe">
-                        </div>
-                        <div class="details">
-                            <h4 class="name"><a href="#">Helen Doe</a></h4>
-                            <span class="date">Jan 08, 2021 14:41 pm</span>
-                            <p>Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet
-                                adipiscing sem neque sed ipsum.</p>
-                            <a href="#" class="btn btn-default btn-sm">Reply</a>
-                        </div>
-                    </li>
-                    <!-- comment item -->
-                    <li class="comment rounded">
-                        <div class="thumb">
-                            <img src="images/other/comment-3.png" alt="John Doe">
-                        </div>
-                        <div class="details">
-                            <h4 class="name"><a href="#">Anna Doe</a></h4>
-                            <span class="date">Jan 08, 2021 14:41 pm</span>
-                            <p>Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus
-                                orci luctus et ultrices posuere cubilia.</p>
-                            <a href="#" class="btn btn-default btn-sm">Reply</a>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-
+                    <ul class="comments">
+                        <!-- comment item -->
+                        <li class="comment rounded">
+                            <div class="thumb">
+                                {#                            TODO сделать тут динамическое отображение картинки#}
+                                <img style="width:70px" ; src="{% static 'images/swetrix_logo_circle.png' %}">
+                            </div>
+                            <div class="details">
+                                <h4 class="name"><a href="#"></a></h4>
+                                <span class="date">{{ comment.updated }}</span>
+                                <p>{{ comment.body }}</p>
+                            </div>
+                    </ul>
+                </div>
+            {% endfor %}
             <div class="spacer" data-height="50" style="height: 50px;"></div>
 
+            {##################################################################################################################################################################################################################}
             <!-- section header -->
             <div class="section-header">
                 <h3 class="section-title">Leave Comment</h3>
-                <img src="images/wave.svg" class="wave" alt="wave">
             </div>
             <!-- comment form -->
             <div class="comment-form rounded bordered padding-30">
+                {% if new_comment %}
+                    <h2>Your comment has been added.</h2>
+                {% else %}
+                    <h2>Add a new comment</h2>
+                    <form action="." method="post">
+                        {{ comment_form.as_p }}
+                        {% csrf_token %}
+                        <p><input type="submit" value="Add comment"></p>
+                    </form>
+                {% endif %}
+                {#            TODO Макс, тут нужные стили для формы, если чё #}
 
-                <form id="comment-form" class="comment-form" method="post">
-
-                    <div class="messages"></div>
-
-                    <div class="row">
-
-                        <div class="column col-md-12">
-                            <!-- Comment textarea -->
-                            <div class="form-group">
-                                <textarea name="InputComment" id="InputComment" class="form-control" rows="4"
-                                          placeholder="Your comment here..." required="required"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="column col-md-6">
-                            <!-- Email input -->
-                            <div class="form-group">
-                                <input type="email" class="form-control" id="InputEmail" name="InputEmail"
-                                       placeholder="Email address" required="required">
-                            </div>
-                        </div>
-
-                        <div class="column col-md-6">
-                            <!-- Name input -->
-                            <div class="form-group">
-                                <input type="text" class="form-control" name="InputWeb" id="InputWeb"
-                                       placeholder="Website" required="required">
-                            </div>
-                        </div>
-
-                        <div class="column col-md-12">
-                            <!-- Email input -->
-                            <div class="form-group">
-                                <input type="text" class="form-control" id="InputName" name="InputName"
-                                       placeholder="Your name" required="required">
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <button type="submit" name="submit" id="submit" value="Submit" class="btn btn-default">Submit
-                    </button><!-- Submit Button -->
-
-                </form>
+                {#                <form id="comment-form" class="comment-form" method="post">#}
+                {#                    <div class="messages"></div>#}
+                {#                    <div class="row">#}
+                {#                        <div class="column col-md-12">#}
+                {#                            <!-- Comment textarea -->#}
+                {#                            <div class="form-group">#}
+                {#                                <textarea name="InputComment" id="InputComment" class="form-control" rows="4"#}
+                {#                                          placeholder="Your comment here..." required="required"></textarea>#}
+                {#                            </div>#}
+                {#                        </div>#}
+                {#                        <div class="column col-md-6">#}
+                {#                            <!-- Email input -->#}
+                {#                            <div class="form-group">#}
+                {#                                <input type="email" class="form-control" id="InputEmail" name="InputEmail"#}
+                {#                                       placeholder="Email address" required="required">#}
+                {#                            </div>#}
+                {#                        </div>#}
+                {#                        <div class="column col-md-6">#}
+                {#                            <!-- Name input -->#}
+                {#                            <div class="form-group">#}
+                {#                                <input type="text" class="form-control" name="InputWeb" id="InputWeb"#}
+                {#                                       placeholder="Website" required="required">#}
+                {#                            </div>#}
+                {#                        </div>#}
+                {#                        <div class="column col-md-12">#}
+                {#                            <!-- Email input -->#}
+                {#                            <div class="form-group">#}
+                {#                                <input type="text" class="form-control" id="InputName" name="InputName"#}
+                {#                                       placeholder="Your name" required="required">#}
+                {#                            </div>#}
+                {#                        </div>#}
+                {#                    </div>#}
+                {#                    <button type="submit" name="submit" id="submit" value="Submit" class="btn btn-default">Submit#}
+                {#                    </button><!-- Submit Button -->#}
+                {#                </form>#}
             </div>
         </div>
-
+        {##################################################################################################################################################################################################################}
         <div class="col-lg-4">
 
             <!-- sidebar -->
-            <div class="sidebar" style="">
-                <div class="inner-wrapper-sticky" style="position: relative;">
+            <div class="sidebar">
+                <div class="inner-wrapper-sticky">
                     <!-- widget about -->
                     <div class="widget rounded">
                         <div class="widget-about data-bg-image text-center" data-bg-image="images/map-bg.png"
                              style="background-image: url(&quot;images/map-bg.png&quot;);">
                             <img src="images/logo.svg" alt="logo" class="mb-4">
-                            <p class="mb-4">Hello, We’re content writer who is fascinated by content fashion, celebrity
-                                and lifestyle. We helps clients bring the right content to the right people.</p>
+                            <p class="mb-4">Hello, We’re content writer who is fascinated by content fashion,
+                                celebrity and lifestyle. We helps clients bring the right content to the right
+                                people.</p>
                             <ul class="social-icons list-unstyled list-inline mb-0">
-                                <li class="list-inline-item"><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                                <li class="list-inline-item"><a
+                                        href="{% static 'images/swetrix_logo_circle.png' %}"><i
+                                        class="fab fa-facebook-f"></i></a>
+                                </li>
                                 <li class="list-inline-item"><a href="#"><i class="fab fa-twitter"></i></a></li>
-                                <li class="list-inline-item"><a href="#"><i class="fab fa-instagram"></i></a></li>
-                                <li class="list-inline-item"><a href="#"><i class="fab fa-pinterest"></i></a></li>
+                                <li class="list-inline-item"><a href="#"><i class="fab fa-instagram"></i></a>
+                                </li>
+                                <li class="list-inline-item"><a href="#"><i class="fab fa-pinterest"></i></a>
+                                </li>
                                 <li class="list-inline-item"><a href="#"><i class="fab fa-medium"></i></a></li>
                                 <li class="list-inline-item"><a href="#"><i class="fab fa-youtube"></i></a></li>
                             </ul>
@@ -227,63 +205,28 @@
                     <div class="widget rounded">
                         <div class="widget-header text-center">
                             <h3 class="widget-title">Popular Posts</h3>
-                            <img src="images/wave.svg" class="wave" alt="wave">
                         </div>
                         <div class="widget-content">
                             <!-- post -->
-                            <div class="post post-list-sm circle">
-                                <div class="thumb circle">
-                                    <span class="number">1</span>
-                                    <a href="blog-single.html">
-                                        <div class="inner">
-                                            <img src="images/posts/tabs-1.jpg" alt="post-title">
-                                        </div>
-                                    </a>
+                            {% for post in random_posts %}
+                                <div class="post post-list-sm circle">
+                                    <div class="thumb circle">
+                                        <span class="number">{{ post.id }}</span>
+                                        <a href="/post/{{ post.url_path }}">
+                                            <div class="inner">
+                                                <img src="{{ post.preview_photo.url }}" alt="post-title">
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="details clearfix">
+                                        <h6 class="post-title my-0"><a
+                                                href="/post/{{ post.url_path }}">{{ post.title }}</a></h6>
+                                        <ul class="meta list-inline mt-1 mb-0">
+                                            <li class="list-inline-item">{{ post.created_at }}</li>
+                                        </ul>
+                                    </div>
                                 </div>
-                                <div class="details clearfix">
-                                    <h6 class="post-title my-0"><a href="blog-single.html">3 Easy Ways To Make Your
-                                        iPhone Faster</a></h6>
-                                    <ul class="meta list-inline mt-1 mb-0">
-                                        <li class="list-inline-item">29 March 2021</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <!-- post -->
-                            <div class="post post-list-sm circle">
-                                <div class="thumb circle">
-                                    <span class="number">2</span>
-                                    <a href="blog-single.html">
-                                        <div class="inner">
-                                            <img src="images/posts/tabs-2.jpg" alt="post-title">
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="details clearfix">
-                                    <h6 class="post-title my-0"><a href="blog-single.html">An Incredibly Easy Method
-                                        That Works For All</a></h6>
-                                    <ul class="meta list-inline mt-1 mb-0">
-                                        <li class="list-inline-item">29 March 2021</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <!-- post -->
-                            <div class="post post-list-sm circle">
-                                <div class="thumb circle">
-                                    <span class="number">3</span>
-                                    <a href="blog-single.html">
-                                        <div class="inner">
-                                            <img src="images/posts/tabs-3.jpg" alt="post-title">
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="details clearfix">
-                                    <h6 class="post-title my-0"><a href="blog-single.html">10 Ways To Immediately Start
-                                        Selling Furniture</a></h6>
-                                    <ul class="meta list-inline mt-1 mb-0">
-                                        <li class="list-inline-item">29 March 2021</li>
-                                    </ul>
-                                </div>
-                            </div>
+                            {% endfor %}
                         </div>
                     </div>
 
@@ -295,15 +238,13 @@
                         </div>
                         <div class="widget-content">
                             <ul class="list">
-                                <li><a href="#">Lifestyle</a><span>(5)</span></li>
-                                <li><a href="#">Inspiration</a><span>(2)</span></li>
-                                <li><a href="#">Fashion</a><span>(4)</span></li>
-                                <li><a href="#">Politic</a><span>(1)</span></li>
-                                <li><a href="#">Trending</a><span>(7)</span></li>
-                                <li><a href="#">Culture</a><span>(3)</span></li>
+                                {% for category in categories %}
+                                    <li>
+                                        <a href="http://127.0.0.1:8000/{{ category.name }}">{{ category.name }}</a><span>({{ category.posts_count }})</span>
+                                    </li>
+                                {% endfor %}
                             </ul>
                         </div>
-
                     </div>
 
                     <!-- widget newsletter -->
@@ -316,7 +257,8 @@
                             <span class="newsletter-headline text-center mb-3">Join 70,000 subscribers!</span>
                             <form>
                                 <div class="mb-2">
-                                    <input class="form-control w-100 text-center" placeholder="Email address…"
+                                    <input class="form-control w-100 text-center"
+                                           placeholder="Email address…"
                                            type="email">
                                 </div>
                                 <button class="btn btn-default btn-full" type="submit">Sign Up</button>
@@ -326,200 +268,8 @@
                         </div>
                     </div>
 
-                    <!-- widget post carousel -->
-                    <div class="widget rounded">
-                        <div class="widget-header text-center">
-                            <h3 class="widget-title">Celebration</h3>
-                            <img src="images/wave.svg" class="wave" alt="wave">
-                        </div>
-                        <div class="widget-content">
-                            <div class="post-carousel-widget slick-initialized slick-slider">
-                                <!-- post -->
-
-                                <!-- post -->
-
-                                <!-- post -->
-
-                                <div aria-live="polite" class="slick-list draggable">
-                                    <div class="slick-track" role="listbox"
-                                         style="opacity: 1; width: 2499px; transform: translate3d(-714px, 0px, 0px);">
-                                        <div class="post post-carousel slick-slide slick-cloned" tabindex="-1"
-                                             role="option" aria-describedby="slick-slide01" style="width: 357px;"
-                                             data-slick-index="-2" id="" aria-hidden="true">
-                                            <div class="thumb rounded">
-                                                <a href="category.html" class="category-badge position-absolute"
-                                                   tabindex="-1">Trending</a>
-                                                <a href="blog-single.html" tabindex="-1">
-                                                    <div class="inner">
-                                                        <img src="images/widgets/widget-carousel-2.jpg"
-                                                             alt="post-title">
-                                                    </div>
-                                                </a>
-                                            </div>
-                                            <h5 class="post-title mb-0 mt-4"><a href="blog-single.html" tabindex="-1">Master
-                                                The Art Of Nature With These 7 Tips</a></h5>
-                                            <ul class="meta list-inline mt-2 mb-0">
-                                                <li class="list-inline-item"><a href="#" tabindex="-1">Katen Doe</a>
-                                                </li>
-                                                <li class="list-inline-item">29 March 2021</li>
-                                            </ul>
-                                        </div>
-                                        <div class="post post-carousel slick-slide slick-cloned" tabindex="-1"
-                                             role="option" aria-describedby="slick-slide02" style="width: 357px;"
-                                             data-slick-index="-1" id="" aria-hidden="true">
-                                            <div class="thumb rounded">
-                                                <a href="category.html" class="category-badge position-absolute"
-                                                   tabindex="-1">How to</a>
-                                                <a href="blog-single.html" tabindex="-1">
-                                                    <div class="inner">
-                                                        <img src="images/widgets/widget-carousel-1.jpg"
-                                                             alt="post-title">
-                                                    </div>
-                                                </a>
-                                            </div>
-                                            <h5 class="post-title mb-0 mt-4"><a href="blog-single.html" tabindex="-1">5
-                                                Easy Ways You Can Turn Future Into Success</a></h5>
-                                            <ul class="meta list-inline mt-2 mb-0">
-                                                <li class="list-inline-item"><a href="#" tabindex="-1">Katen Doe</a>
-                                                </li>
-                                                <li class="list-inline-item">29 March 2021</li>
-                                            </ul>
-                                        </div>
-                                        <div class="post post-carousel slick-slide slick-current slick-active"
-                                             tabindex="-1" role="option" aria-describedby="slick-slide00"
-                                             style="width: 357px;" data-slick-index="0" aria-hidden="false">
-                                            <div class="thumb rounded">
-                                                <a href="category.html" class="category-badge position-absolute"
-                                                   tabindex="0">How to</a>
-                                                <a href="blog-single.html" tabindex="0">
-                                                    <div class="inner">
-                                                        <img src="images/widgets/widget-carousel-1.jpg"
-                                                             alt="post-title">
-                                                    </div>
-                                                </a>
-                                            </div>
-                                            <h5 class="post-title mb-0 mt-4"><a href="blog-single.html" tabindex="0">5
-                                                Easy Ways You Can Turn Future Into Success</a></h5>
-                                            <ul class="meta list-inline mt-2 mb-0">
-                                                <li class="list-inline-item"><a href="#" tabindex="0">Katen Doe</a></li>
-                                                <li class="list-inline-item">29 March 2021</li>
-                                            </ul>
-                                        </div>
-                                        <div class="post post-carousel slick-slide slick-active" tabindex="-1"
-                                             role="option" aria-describedby="slick-slide01" style="width: 357px;"
-                                             data-slick-index="1" aria-hidden="false">
-                                            <div class="thumb rounded">
-                                                <a href="category.html" class="category-badge position-absolute"
-                                                   tabindex="0">Trending</a>
-                                                <a href="blog-single.html" tabindex="0">
-                                                    <div class="inner">
-                                                        <img src="images/widgets/widget-carousel-2.jpg"
-                                                             alt="post-title">
-                                                    </div>
-                                                </a>
-                                            </div>
-                                            <h5 class="post-title mb-0 mt-4"><a href="blog-single.html" tabindex="0">Master
-                                                The Art Of Nature With These 7 Tips</a></h5>
-                                            <ul class="meta list-inline mt-2 mb-0">
-                                                <li class="list-inline-item"><a href="#" tabindex="0">Katen Doe</a></li>
-                                                <li class="list-inline-item">29 March 2021</li>
-                                            </ul>
-                                        </div>
-                                        <div class="post post-carousel slick-slide" tabindex="-1" role="option"
-                                             aria-describedby="slick-slide02" style="width: 357px;" data-slick-index="2"
-                                             aria-hidden="true">
-                                            <div class="thumb rounded">
-                                                <a href="category.html" class="category-badge position-absolute"
-                                                   tabindex="-1">How to</a>
-                                                <a href="blog-single.html" tabindex="-1">
-                                                    <div class="inner">
-                                                        <img src="images/widgets/widget-carousel-1.jpg"
-                                                             alt="post-title">
-                                                    </div>
-                                                </a>
-                                            </div>
-                                            <h5 class="post-title mb-0 mt-4"><a href="blog-single.html" tabindex="-1">5
-                                                Easy Ways You Can Turn Future Into Success</a></h5>
-                                            <ul class="meta list-inline mt-2 mb-0">
-                                                <li class="list-inline-item"><a href="#" tabindex="-1">Katen Doe</a>
-                                                </li>
-                                                <li class="list-inline-item">29 March 2021</li>
-                                            </ul>
-                                        </div>
-                                        <div class="post post-carousel slick-slide slick-cloned" tabindex="-1"
-                                             role="option" aria-describedby="slick-slide00" style="width: 357px;"
-                                             data-slick-index="3" id="" aria-hidden="true">
-                                            <div class="thumb rounded">
-                                                <a href="category.html" class="category-badge position-absolute"
-                                                   tabindex="-1">How to</a>
-                                                <a href="blog-single.html" tabindex="-1">
-                                                    <div class="inner">
-                                                        <img src="images/widgets/widget-carousel-1.jpg"
-                                                             alt="post-title">
-                                                    </div>
-                                                </a>
-                                            </div>
-                                            <h5 class="post-title mb-0 mt-4"><a href="blog-single.html" tabindex="-1">5
-                                                Easy Ways You Can Turn Future Into Success</a></h5>
-                                            <ul class="meta list-inline mt-2 mb-0">
-                                                <li class="list-inline-item"><a href="#" tabindex="-1">Katen Doe</a>
-                                                </li>
-                                                <li class="list-inline-item">29 March 2021</li>
-                                            </ul>
-                                        </div>
-                                        <div class="post post-carousel slick-slide slick-cloned" tabindex="-1"
-                                             role="option" aria-describedby="slick-slide01" style="width: 357px;"
-                                             data-slick-index="4" id="" aria-hidden="true">
-                                            <div class="thumb rounded">
-                                                <a href="category.html" class="category-badge position-absolute"
-                                                   tabindex="-1">Trending</a>
-                                                <a href="blog-single.html" tabindex="-1">
-                                                    <div class="inner">
-                                                        <img src="images/widgets/widget-carousel-2.jpg"
-                                                             alt="post-title">
-                                                    </div>
-                                                </a>
-                                            </div>
-                                            <h5 class="post-title mb-0 mt-4"><a href="blog-single.html" tabindex="-1">Master
-                                                The Art Of Nature With These 7 Tips</a></h5>
-                                            <ul class="meta list-inline mt-2 mb-0">
-                                                <li class="list-inline-item"><a href="#" tabindex="-1">Katen Doe</a>
-                                                </li>
-                                                <li class="list-inline-item">29 March 2021</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- carousel arrows -->
-                            <div class="slick-arrows-bot">
-                                <button type="button" data-role="none" class="carousel-botNav-prev slick-custom-buttons"
-                                        aria-label="Previous"><i class="icon-arrow-left"></i></button>
-                                <button type="button" data-role="none" class="carousel-botNav-next slick-custom-buttons"
-                                        aria-label="Next"><i class="icon-arrow-right"></i></button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- widget advertisement -->
-                    <div class="widget no-container rounded text-md-center">
-                        <span class="ads-title">- Sponsored Ad -</span>
-                        <a href="#" class="widget-ads">
-                            <img src="images/ads/ad-360.png" alt="Advertisement">
-                        </a>
-                    </div>
-
-                    <!-- widget tags -->
-                    <div class="widget rounded">
-                        <div class="widget-header text-center">
-                            <h3 class="widget-title">Tag Clouds</h3>
-                            <img src="images/wave.svg" class="wave" alt="wave">
-                        </div>
-                    </div>
-
                 </div>
             </div>
-
         </div>
 
     </div>

@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -21,8 +23,21 @@ class Category(models.Model):
         return self.name
 
 
+# Custom class for the Post model
+class NameField(models.CharField):
+    def __init__(self, *args, **kwargs):
+        super(NameField, self).__init__(*args, **kwargs)
+
+    def get_prep_value(self, value):
+        # replace all special symbols with spaces in the string
+        value = re.sub(r'[^\w]', ' ', value)
+        new_str = str(value).lower().replace(' ', '-').replace('?', '-').strip().replace("'", '').replace('--', '-')
+        return new_str[:-1] if new_str[-1] == '-' else new_str
+
+
 class Post(models.Model):
     title = models.CharField(max_length=255)
+    url_path = NameField(max_length=255, null=True, blank=True)
     intro = models.TextField(max_length=90)
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -36,13 +51,16 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    author = models.TextField(max_length=60, default="Anonymous", blank=True, null=True)
+    post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
+    name = models.CharField(max_length=80, default='')
+    email = models.EmailField(null=True, blank=True, default='')
     body = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    active = models.BooleanField(default=True)
 
-    # likes = models.ManyToManyField(User, related_name='comment_likes', blank=True)
-    # dislikes = models.ManyToManyField(User, related_name='comment_dislikes', blank=True)
+    class Meta:
+        ordering = ('created',)
 
     def __str__(self):
-        return self.author
+        return 'Comment by {} on {}'.format(self.name, self.post)
